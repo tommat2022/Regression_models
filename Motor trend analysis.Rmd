@@ -1,0 +1,82 @@
+---
+title: "Motor_trend_analysis"
+author: "Tom Mat"
+date: "2023-02-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Executive Summary
+This report represents the analysis the relationship between some variables and MPG (miles per gallon) with using the mtcars dataset. In order to determine the important variables, regression models are used.   You can see my report at the following site: https://rpubs.com/tommat2022/motor_trend  
+The main questions are following:  
+- Which is better for MPG, an automatic or manual transmission?  
+- Evaluate the the difference of the effect on MPG between an automatic and manual transmission.  
+
+ At the beginning, I performed a boxplot and t-test to evaluate the basic statistical analysis, which shows that the type of transmission is significantly related with the MPG.   
+ Next, I performed the simple linear regression methond to identify how much the type of transmission explains the change of MPG. According to the regression, only 34% can be explained by using the type of transmission.
+ Finally, I performed the multiple linear regression method to identify which variables are important to determine the change of MPG. According to the multiple regression, the number of cylinders are the most important factors to determine the change of MPG. The second important factor is the weight of car. The multiple regression model is a good model base on the residuals analysis.
+
+
+#### Load Library and Data Cleansing
+```{r library and data}
+suppressMessages(library(ggplot2))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+data(mtcars)
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- as.factor(mtcars$am)
+levels(mtcars$am) <- c("Automatic", "Manual")
+mtcars$gear <- as.factor(mtcars$gear)
+mtcars$carb <- as.factor(mtcars$carb)
+head(mtcars)
+```
+
+#### Exploratory Data Analysis
+```{r EDA}
+mtcars %>% 
+  ggplot(aes(x=am, y=mpg, fill=am)) +
+  geom_boxplot() +
+  ggtitle("MPG by the type of transmission") +
+  theme_bw()
+```
+
+#### T-test analysis
+In order to determine whether the type of transmission is significantly different, I performed t-test.  
+The t-test shows significantly different between the two type of transmission with the p-value is less than 0.05.
+```{r t-test}
+compare_transmission <- t.test(mpg ~ am, data=mtcars)
+compare_transmission
+```
+
+#### Simple Linear Regression analysis
+I performed the simple linear regression method in the model with MPG as dependent variable and type of transmission as independent variable. According to the simple linear regression analysis, I can say that the type of transmission is significantly related with the MPG. Adjusted R-sauared is 0.3385, therefore the type of transmission only explain the 34% of variance.
+
+```{r simple linear regression analysis}
+simple_lm <- lm(mpg ~ am, data=mtcars)
+summary(simple_lm)
+```
+
+#### Multiple Linear Regression analysis
+I performed multiple linear regression method in the model with MPG as dependent variable and all other variables as independent variables.  
+Accoding to the multiple linear regression, I can say that the type of transmission is not significant when the other variables are considered at the same time. The number of cylinders are much more significant than other variables. The second important variable is the weight of car. 
+```{r multiple linear regression}
+multi_lm <- lm(mpg ~ cyl + disp + wt + am, data=mtcars)
+summary(multi_lm)
+```
+
+#### Residuals analysis
+According the residuals vs fitted chart and scale-location chart, the assumption of independence and the constance variance can be said. According to the Normal Q-Q plot, the distribution of residuals is almost normal. According to the residualsvs leverage plot, all of the point are within the 0.05 lines, so I can say that there is no outliers.
+```{r residuals analysis}
+par(mfrow=c(2,2))
+plot(multi_lm)
+```
+
+#### Conclusion
+ I performed a boxplot and t-test to evaluate the basic statistical analysis, which shows that the type of transmission is significantly related with the MPG.   
+ Next, I performed the simple linear regression methond to identify how much the type of transmission explains the change of MPG. According to the regression, only 34% can be explained by using the type of transmission.
+ Finally, I performed the multiple linear regression method to identify which variables are important to determine the change of MPG. According to the multiple regression, the number of cylinders are the most important factors to determine the change of MPG. The second important factor is the weight of car. The multiple regression model is a good model base on the residuals analysis.
+
